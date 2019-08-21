@@ -5,19 +5,25 @@ type FieldType string
 func (t FieldType) StringForDocumentation() string {
 	v := string(t)
 	switch v {
-	case `null.Int`:
+	case `Int32Array`:
+		return `[]int32`
+	case `Int64Array`:
+		return `[]int64`
+	case `StringArray`:
+		return `[]string`
+	case `Int`:
 		return `*int64`
-	case `null.Uint`:
+	case `Uint`:
 		return `*uint64`
-	case `null.String`:
+	case `String`:
 		return `*string`
-	case `null.Boolean`:
+	case `Boolean`, `Bool`:
 		return `*bool`
-	case `null.Float`:
+	case `Float`:
 		return `*float64`
-	case `time.Time`:
+	case `Time`:
 		return `datetime`
-	case `null.Time`:
+	case `*Time`:
 		return `*datetime`
 	default:
 		return v

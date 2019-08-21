@@ -12,6 +12,28 @@ import (
 	"github.com/xaionaro-go/errors"
 )
 
+func exprToTypeName(expr ast.Expr) string {
+	switch v := expr.(type) {
+	case *ast.Ident:
+		return v.Name
+	case *ast.StarExpr:
+		return `*` + exprToTypeName(v.X)
+	case *ast.SelectorExpr:
+		return v.Sel.Name
+	case *ast.ArrayType:
+		if v.Len == nil {
+			return fmt.Sprintf(`[]%v`, exprToTypeName(v.Elt))
+		}
+		return fmt.Sprintf(`[%v]%v`, v.Len, exprToTypeName(v.Elt))
+	case *ast.MapType:
+		return fmt.Sprintf(`map[%v]%v`, exprToTypeName(v.Key), exprToTypeName(v.Value))
+	case *ast.InterfaceType:
+		return fmt.Sprintf(`%v`, v.Interface)
+	}
+
+	panic(fmt.Sprintf(`unknown type: %T`, expr))
+}
+
 func fieldGetStructTag(f *ast.Field) reflect.StructTag {
 	if f.Tag != nil {
 		tag := f.Tag.Value
@@ -37,10 +59,24 @@ func structTypeGetFields(structType *ast.StructType) (r Fields) {
 		tag := fieldGetStructTag(f)
 
 		var sqlFieldName string
-		for _, sqlTagName := range []string{`sql`,`gorm`,`reform`} {
+		for _, sqlTagName := range []string{`sql`, `reform`} {
 			sqlFieldName = strings.Split(tag.Get(sqlTagName), `,`)[0]
 			if sqlFieldName != `` {
 				break
+			}
+		}
+		if sqlFieldName == `` {
+			for _, gormTag := range strings.Split(tag.Get(`gorm`), `,`) {
+				parts := strings.Split(gormTag, `:`)
+				if len(parts) != 2 {
+					continue
+				}
+				key := parts[0]
+				value := parts[1]
+				switch key {
+				case `column`:
+					sqlFieldName = value
+				}
 			}
 		}
 		if sqlFieldName == `` {
@@ -62,12 +98,14 @@ func structTypeGetFields(structType *ast.StructType) (r Fields) {
 			}
 		}
 
+		typeName := exprToTypeName(f.Type)
+
 		r = append(r, Field{
-			Name: name,
-			Type: FieldType(f.Type.Pos()),
-			SQLFieldName: sqlFieldName,
-			JSONFieldName:jsonFieldName,
-			Comments:comments,
+			Name:          name,
+			Type:          FieldType(typeName),
+			SQLFieldName:  sqlFieldName,
+			JSONFieldName: jsonFieldName,
+			Comments:      comments,
 		})
 	}
 
@@ -101,7 +139,7 @@ func declsGetStructs(decls []ast.Decl) (r Structs) {
 			}
 
 			r = append(r, Struct{
-				Name: name,
+				Name:   name,
 				Fields: structTypeGetFields(structType),
 			})
 		}

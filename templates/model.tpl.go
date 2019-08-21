@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	modelMarkdownTemplateText = ``+
-`# [{{ .File.Path }}] {{ .Struct.Name }}
-| name | sql{{- if .shouldPrintJSON}} | json{{- end }} | description |
-| ---- | ---{{- if .shouldPrintJSON}} | ----{{- end }} | ----------- |
+	modelMarkdownTemplateText = `` +
+		`# [{{ .File.Path }}] {{ .Struct.Name }}
+| name | sql{{- if .shouldPrintJSON}} | json{{- end }} | type | description |
+| ---- | ---{{- if .shouldPrintJSON}} | ----{{- end }} | ---- | ----------- |
 {{- $shouldPrintJSON := .shouldPrintJSON }}
 {{- range $index,$field := .Struct.Fields }}
-| {{ escapeMarkdown $field.Name }} | {{ escapeMarkdown $field.SQLFieldName }}{{- if $shouldPrintJSON}} | {{ escapeMarkdown $field.JSONFieldName }}{{- end }} | {{ escapeMarkdown ( stringsJoin $field.Comments "," ) }} |
+| {{ escapeMarkdown $field.Name }} | {{ escapeMarkdown $field.SQLFieldName }}{{- if $shouldPrintJSON}} | {{ escapeMarkdown $field.JSONFieldName }}{{- end }} | {{ escapeMarkdown $field.Type.StringForDocumentation }} | {{ escapeMarkdown ( stringsJoin $field.Comments "," ) }} |
 {{- end }}
 `
 )
@@ -24,7 +24,7 @@ var (
 func init() {
 	var err error
 	tpl := template.New(`ModelMarkdownTemplate`).Funcs(map[string]interface{}{
-		"escapeMarkdown" : func(in string) string {
+		"escapeMarkdown": func(in string) string {
 			// Implementation of this function is copied from
 			// https://raw.githubusercontent.com/ekalinin/github-markdown-toc.go/09cbee650f0f3f0974d2959467713637dbd99f41/internals.go
 			specChar := []string{"\\", "`", "*", "_", "{", "}", "#", "+", "-", ".", "!"}

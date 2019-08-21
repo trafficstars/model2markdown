@@ -17,7 +17,7 @@ func fatalSyntax() {
 	os.Exit(int(syscall.EINVAL))
 }
 
-func parseArgs(cfg *Config)  {
+func parseArgs(cfg *Config) {
 	if cfg == nil {
 		panic(`cfg == nil`)
 	}
@@ -40,7 +40,7 @@ func parseArgs(cfg *Config)  {
 		}
 		if !stat.IsDir() {
 			cfg.Jobs = append(cfg.Jobs, Job{
-				InputFile:filePath,
+				InputFile: filePath,
 			})
 		}
 
@@ -54,7 +54,7 @@ func parseArgs(cfg *Config)  {
 			}
 
 			cfg.Jobs = append(cfg.Jobs, Job{
-				InputFile:filePath,
+				InputFile: filePath,
 			})
 
 			return nil

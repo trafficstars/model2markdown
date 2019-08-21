@@ -1,7 +1,7 @@
 package model2markdown
 
 type Struct struct {
-	Name string
+	Name   string
 	Fields Fields
 }
 

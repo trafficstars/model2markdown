@@ -6,5 +6,5 @@ type Job struct {
 
 type Config struct {
 	OutputDirectory string
-	Jobs []Job
+	Jobs            []Job
 }

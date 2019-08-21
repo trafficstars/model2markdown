@@ -24,7 +24,7 @@ type libraryStruct struct {
 }
 
 func (s *libraryStruct) GetDocumentFileName() string {
-	return s.File.Package+`_`+s.Struct.Name+`.md`
+	return s.File.Package + `_` + s.Struct.Name + `.md`
 }
 
 func (lib *Library) GenerateMarkdownsToDirectory(outputDir string) error {
@@ -60,8 +60,8 @@ func (lib *Library) GenerateMarkdownsToDirectory(outputDir string) error {
 		}
 
 		err = templates.ModelMarkdownTemplate.Execute(file, map[string]interface{}{
-			"File": s.File,
-			"Struct": s.Struct,
+			"File":            s.File,
+			"Struct":          s.Struct,
 			"shouldPrintJSON": shouldPrintJSON,
 		})
 		if err != nil {
